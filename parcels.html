@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"><link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png"><link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png"><link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<title>Parcels · Sunny Real Estate</title>
+<meta name="description" content="All 30 verified parcels — agricultural land, N.A plots, farmhouse land and bungalows across Nashik, Igatpuri and Trimbakeshwar.">
+
+<link rel="canonical" href="https://sunnyrealestate.io/parcels.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sunny Real Estate">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="All parcels · Sunny Real Estate">
+<meta property="og:description" content="30 verified parcels — agricultural land, N.A plots, farmhouse land and bungalows across Nashik district.">
+<meta property="og:url" content="https://sunnyrealestate.io/parcels.html">
+<meta property="og:image" content="https://sunnyrealestate.io/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sunny Real Estate — Land, verified. Nashik.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="All parcels · Sunny Real Estate">
+<meta name="twitter:description" content="30 verified parcels — agricultural land, N.A plots, farmhouse land and bungalows across Nashik district.">
+<meta name="twitter:image" content="https://sunnyrealestate.io/assets/og-image.png">
+<meta name="theme-color" content="#1E5B41">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="parcels">
+<div id="sharedNav"></div>
+
+<div class="pagehead">
+  <div class="wrap row">
+    <div><span class="kick">Inventory</span><h1>All parcels</h1><p class="sub">Every listing is title-checked, mapped and documented before it appears here.</p></div>
+    <a class="btn line" href="map.html">View on map</a>
+  </div>
+</div>
+
+<div class="filterbar">
+  <div class="wrap frow">
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="typeChips">
+      <button class="chip on" data-f="all">All</button>
+      <button class="chip" data-f="Farmhouse">Farmhouse</button>
+      <button class="chip" data-f="N.A Plot">N.A plots</button>
+      <button class="chip" data-f="Investment Land">Investment</button>
+      <button class="chip" data-f="Bungalow">Bungalows</button>
+      <button class="chip" data-f="Yellow Land">Yellow land</button>
+    </div>
+    <div class="fsep"></div>
+    <div class="selwrap">
+      <select class="selreg" id="regSel" aria-label="Filter by locality">
+        <option value="all">All localities</option>
+        <option>Nashik City</option><option>Gangapur Road</option><option>Chandshi</option>
+        <option>Igatpuri</option><option>Trimbakeshwar</option><option>Niphad &amp; Sinnar</option>
+      </select>
+    </div>
+    <button class="chip" id="sortBtn">Price low → high</button>
+    <span class="fcount" id="fcount"></span>
+  </div>
+</div>
+
+<section style="padding-bottom:70px">
+  <div class="wrap"><div id="closedBar"></div><div class="grid3" id="grid"></div></div>
+</section>
+
+<div id="sharedFoot"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

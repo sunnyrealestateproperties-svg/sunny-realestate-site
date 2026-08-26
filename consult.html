@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"><link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png"><link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png"><link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<title>Consult · Sunny Real Estate</title>
+<meta name="description" content="Book a one-hour land consultation with Sunny Maniyar, or get the free Maharashtra Land Revenue System ebook.">
+
+<link rel="canonical" href="https://sunnyrealestate.io/consult.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sunny Real Estate">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="Consult · Sunny Real Estate">
+<meta property="og:description" content="Book a one-hour land consultation, or get the free Maharashtra Land Revenue System ebook.">
+<meta property="og:url" content="https://sunnyrealestate.io/consult.html">
+<meta property="og:image" content="https://sunnyrealestate.io/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sunny Real Estate — Land, verified. Nashik.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Consult · Sunny Real Estate">
+<meta name="twitter:description" content="Book a one-hour land consultation, or get the free Maharashtra Land Revenue System ebook.">
+<meta name="twitter:image" content="https://sunnyrealestate.io/assets/og-image.png">
+<meta name="theme-color" content="#1E5B41">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="consult">
+<div id="sharedNav"></div>
+
+<div class="pagehead">
+  <div class="wrap row">
+    <div><span class="kick">Advisory</span><h1>Advice before you buy</h1><p class="sub">Land fraud, title gaps and N.A-conversion traps are real. Check first, pay later.</p></div>
+  </div>
+</div>
+
+<section class="s" style="padding-top:36px">
+  <div class="wrap">
+    <div class="offer2">
+      <div class="offer reveal in">
+        <div class="k">Paid · 1 hour · in person</div>
+        <h3>One-to-one consultation</h3>
+        <p>Your parcel, your budget, your title questions — answered by someone who verifies land daily.</p>
+        <a class="btn primary" href="https://superprofile.bio/vp/6a6c5ed6d5ffd90013b535df" target="_blank" rel="noopener">Book a session</a>
+      </div>
+      <div class="offer reveal in" id="ebook">
+        <div class="k">Free · ebook</div>
+        <h3>Maharashtra Land Revenue System</h3>
+        <p>The plain-language guide to 7/12 extracts, land types and the checks every buyer must make.</p>
+        <a class="btn line" href="https://superprofile.bio/vp/6a4754bbc5d04e0013d4ae77" target="_blank" rel="noopener">Get the ebook</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s tint">
+  <div class="wrap" style="max-width:640px">
+    <div class="shead"><div><span class="kick">Enquiry</span><h2>Or leave your details</h2></div></div>
+    <div style="background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+      <div style="padding:6px 0 0">
+        <div class="lead-body" style="padding-top:20px">
+          <div class="frow2">
+            <div class="field" id="pfName"><label>Name</label><input id="pName" type="text" placeholder="Your name"><div class="hint">Add your name so Sunny knows who to ask for.</div></div>
+            <div class="field" id="pfPhone"><label>Phone / WhatsApp</label><input id="pPhone" type="tel" inputmode="numeric" placeholder="10-digit mobile"><div class="hint">Enter a 10-digit mobile number.</div></div>
+          </div>
+          <div class="field"><label>Email <span class="opt">(optional)</span></label><input id="pEmail" type="email" placeholder="you@email.com"></div>
+          <div class="field"><label>What do you need?</label>
+            <div class="chip-row" id="pLook">
+              <button class="chip-sel" data-v="Consultation">Consultation</button>
+              <button class="chip-sel" data-v="A specific parcel">A parcel</button>
+              <button class="chip-sel" data-v="Land verification">Verification</button>
+              <button class="chip-sel" data-v="Not sure yet">Not sure yet</button>
+            </div>
+          </div>
+          <div class="lead-submit"><button class="btn wa" onclick="pageLead()"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 2a10 10 0 00-8.5 15.3L2 22l4.8-1.4A10 10 0 1012 2z"/></svg>Send to Sunny on WhatsApp</button></div>
+          <div class="lead-note">Opens WhatsApp with your details pre-filled. Nothing is stored on this site.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="sharedFoot"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+let pv=null;
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('#pLook .chip-sel').forEach(c=>c.onclick=()=>{document.querySelectorAll('#pLook .chip-sel').forEach(x=>x.classList.remove('on'));c.classList.add('on');pv=c.dataset.v;});
+});
+function pageLead(){
+  const name=document.getElementById('pName').value.trim();
+  const phone=document.getElementById('pPhone').value.replace(/\D/g,'');
+  const email=document.getElementById('pEmail').value.trim();
+  let ok=true;
+  const fN=document.getElementById('pfName'),fP=document.getElementById('pfPhone');
+  if(!name){fN.classList.add('bad');ok=false;}else fN.classList.remove('bad');
+  if(phone.length<10){fP.classList.add('bad');ok=false;}else fP.classList.remove('bad');
+  if(!ok)return;
+  let m=`New enquiry from your website —\n\nName: ${name}\nPhone: ${phone}\n`;
+  if(email)m+=`Email: ${email}\n`;
+  m+=`Needs: ${pv||'Not specified'}\n`;
+  window.open(`https://wa.me/917666369251?text=${encodeURIComponent(m)}`,'_blank');
+}
+</script>
+</body>
+</html>

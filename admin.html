@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"><link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png"><link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png"><link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<title>Team panel · Sunny Real Estate</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="admin">
+<nav class="site"><div class="wrap navrow">
+  <a href="index.html" class="brand"><img class="mk" src="assets/logo-mark.png" alt="Sunny Real Estate" width="36" height="36"><span><b>Sunny Real Estate</b><small>Team panel</small></span></a>
+  <div class="nav-cta"><a class="btn line" href="index.html">← Back to site</a></div>
+</div></nav>
+
+<div class="pagehead"><div class="admin-wrap">
+  <span class="kick">Team only</span>
+  <h1>Parcel manager</h1>
+  <p class="sub">Change a status, fix a price, edit any detail, or add or remove a parcel. Changes go live on the website within seconds — no developer needed.</p>
+</div></div>
+
+<section class="s" style="padding-top:30px"><div class="admin-wrap">
+
+  <div class="admin-bar">
+    <div class="field" style="max-width:220px"><label>Team PIN</label><input id="pin" type="password" placeholder="Enter PIN" autocomplete="off"></div>
+    <span class="conn warn" id="conn">Checking connection…</span>
+    <button class="btn line" onclick="refresh()">Refresh list</button>
+  </div>
+
+  <div class="admin-note" id="setupNote" style="display:none">
+    <b>Not connected yet.</b> The website is still running on built-in data. To switch on live editing:
+    open <span class="mono">apps-script-code.gs</span> in the site folder and follow the six setup steps
+    (Google Sheet → Apps Script → paste the Web app URL into <span class="mono">assets/config.js</span>).
+    Until then, this panel is read-only.
+  </div>
+
+  <div class="shead" style="margin-bottom:16px"><div><span class="kick">Inventory</span><h2 style="font-size:24px" id="countHead">Parcels</h2></div>
+    <button class="btn primary" onclick="toggleAdd()">+ Add parcel</button></div>
+
+  <div class="addbox" id="addbox" style="display:none">
+    <div class="shead" style="margin-bottom:14px"><div><span class="kick">New parcel</span><h2 style="font-size:20px">Add to the register</h2></div></div>
+    <div class="frow2">
+      <div class="field"><label>Name</label><input id="aName" placeholder="e.g. 5-Guntha N.A Plot, Makhmalabad"></div>
+      <div class="field"><label>ID <span class="opt">(auto)</span></label><input id="aId" placeholder="e.g. MKH-5NA"></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Type</label>
+        <select id="aType"><option>N.A Plot</option><option>Investment Land</option><option>Farmhouse</option><option>Yellow Land</option><option>Bungalow</option></select></div>
+      <div class="field"><label>Locality group</label>
+        <select id="aReg"><option>Nashik City</option><option>Gangapur Road</option><option>Chandshi</option><option>Igatpuri</option><option>Trimbakeshwar</option><option>Niphad &amp; Sinnar</option></select></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Locality / landmark</label><input id="aLoc" placeholder="e.g. Makhmalabad, Nashik"></div>
+      <div class="field"><label>Area</label><input id="aArea" placeholder="e.g. 5 Guntha / 250 Var"></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Price (display)</label><input id="aPrice" placeholder="e.g. ₹1.2 Cr"></div>
+      <div class="field"><label>Rate / note</label><input id="aUnit" placeholder="e.g. ₹24L / guntha · negotiable"></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Price in ₹ (for sorting)</label><input id="aRank" inputmode="numeric" placeholder="e.g. 12000000"></div>
+      <div class="field"><label>Google Maps link</label><input id="aLink" placeholder="https://maps.app.goo.gl/…"></div>
+    </div>
+    <div class="field"><label>Highlights <span class="opt">(separate with ;)</span></label><input id="aHl" placeholder="9-metre road front; Near highway; Corner plot"></div>
+    <div class="field"><label>Verification note</label><input id="aVf" placeholder="e.g. Layout PDF and 7/12 on record."></div>
+    <div class="lead-submit"><button class="btn primary" onclick="addParcel()">Add parcel — goes live now</button></div>
+  </div>
+
+  <div id="list"></div>
+</div></section>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/config.js"></script>
+<script>
+const API=(window.SRE_CONFIG||{}).api||"";
+let ROWS=[];
+const STATUSES=[["av","Available"],["partly","Partly sold"],["pre","Pre-launch"],["sold","Sold"]];
+const $=id=>document.getElementById(id);
+function toast(m,ms){$('toast').textContent=m;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),ms||2600);}
+
+async function refresh(){
+  if(!API){$('conn').textContent='Not connected — setup pending';$('conn').className='conn warn';$('setupNote').style.display='block';render();return;}
+  $('conn').textContent='Loading…';
+  try{
+    const r=await fetch(API+'?action=list',{redirect:'follow'});
+    const d=await r.json();
+    if(!d.ok)throw new Error(d.error||'error');
+    ROWS=d.parcels;
+    $('conn').textContent='Live · connected to sheet';$('conn').className='conn ok';
+    render();
+  }catch(e){$('conn').textContent='Connection failed — check the API URL';$('conn').className='conn warn';render();}
+}
+const TYPES=['N.A Plot','Investment Land','Farmhouse','Yellow Land','Bungalow'];
+const REGIONS=['Nashik City','Gangapur Road','Chandshi','Igatpuri','Trimbakeshwar','Niphad & Sinnar'];
+const openRows={};
+function esc(v){return String(v==null?'':v).replace(/"/g,'&quot;');}
+function render(){
+  $('countHead').textContent=ROWS.length?ROWS.length+' parcels':'Parcels';
+  $('list').innerHTML=ROWS.map((p,i)=>`
+    <div class="arow-wrap">
+    <div class="arow" id="row-${i}">
+      <div class="t">${p.name}<small>${p.id} · ${p.type} · ${p.locality||''}</small></div>
+      <select onchange="mark(${i},'status',this.value)">${STATUSES.map(s=>`<option value="${s[0]}" ${p.status===s[0]?'selected':''}>${s[1]}</option>`).join('')}</select>
+      <input value="${esc(p.price)}" placeholder="Price" onchange="mark(${i},'price',this.value)">
+      <div class="arow-actions">
+        <button class="btn primary" onclick="save(${i})">Save</button>
+        <button class="btn line" onclick="toggleEdit(${i})">${openRows[i]?'Close':'Edit details'}</button>
+        <button class="btn line danger" onclick="removeParcel(${i})">Delete</button>
+      </div>
+    </div>
+    ${openRows[i]?editPanel(p,i):''}
+    </div>`).join('')||'<div class="admin-note">No parcels loaded yet. Connect the sheet, then press Refresh.</div>';
+}
+function editPanel(p,i){
+  return `<div class="addbox" style="display:block;margin-top:0;margin-bottom:14px">
+    <div class="frow2">
+      <div class="field"><label>Name</label><input id="e${i}Name" value="${esc(p.name)}"></div>
+      <div class="field"><label>ID</label><input value="${esc(p.id)}" disabled></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Type</label><select id="e${i}Type">${TYPES.map(t=>`<option ${p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="field"><label>Locality group</label><select id="e${i}Reg">${REGIONS.map(r=>`<option ${p.region===r?'selected':''}>${r}</option>`).join('')}</select></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Locality / landmark</label><input id="e${i}Loc" value="${esc(p.locality)}"></div>
+      <div class="field"><label>Area</label><input id="e${i}Area" value="${esc(p.area)}"></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Price (display)</label><input id="e${i}Price" value="${esc(p.price)}"></div>
+      <div class="field"><label>Rate / note</label><input id="e${i}Unit" value="${esc(p.unit)}"></div>
+    </div>
+    <div class="frow2">
+      <div class="field"><label>Price in ₹ (for sorting)</label><input id="e${i}Rank" inputmode="numeric" value="${esc(p.rank)}"></div>
+      <div class="field"><label>Google Maps link</label><input id="e${i}Link" value="${esc(p.maplink)}"></div>
+    </div>
+    <div class="field"><label>Highlights <span class="opt">(separate with ;)</span></label><input id="e${i}Hl" value="${esc(p.highlights)}"></div>
+    <div class="field"><label>Verification note</label><input id="e${i}Vf" value="${esc(p.verification)}"></div>
+    <div class="field"><label>Gap note <span class="opt">(optional, shown as a flagged note)</span></label><input id="e${i}Gap" value="${esc(p.gap)}"></div>
+    <div class="lead-submit"><button class="btn primary" onclick="saveDetails(${i})">Save all details</button></div>
+  </div>`;
+}
+function toggleEdit(i){openRows[i]=!openRows[i];render();}
+const dirty={};
+function mark(i,k,v){ROWS[i][k]=v;dirty[i]=1;$('row-'+i).classList.add('dirty');}
+async function post(body){
+  const r=await fetch(API,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  return r.json();
+}
+function requirePin(){
+  if(!API){toast('Not connected yet — finish the Google setup first.');return null;}
+  const pin=$('pin').value.trim();
+  if(!pin){toast('Enter the team PIN first.');return null;}
+  return pin;
+}
+async function save(i){
+  const pin=requirePin();if(!pin)return;
+  const p=ROWS[i];
+  try{
+    const d=await post({pin,action:'update',parcel:{id:p.id,status:p.status,price:p.price}});
+    if(!d.ok)return toast(d.error||'Save failed');
+    $('row-'+i).classList.remove('dirty');$('row-'+i).classList.add('saved-flash');
+    toast(p.id+' saved — live on the site.');
+  }catch(e){toast('Save failed — check connection.');}
+}
+async function saveDetails(i){
+  const pin=requirePin();if(!pin)return;
+  const p=ROWS[i];
+  const link=$(`e${i}Link`).value.trim();
+  const parcel={
+    id:p.id,
+    name:$(`e${i}Name`).value.trim(),
+    type:$(`e${i}Type`).value,
+    region:$(`e${i}Reg`).value,
+    locality:$(`e${i}Loc`).value.trim(),
+    area:$(`e${i}Area`).value.trim(),
+    price:$(`e${i}Price`).value.trim(),
+    unit:$(`e${i}Unit`).value.trim(),
+    rank:parseFloat($(`e${i}Rank`).value)||0,
+    maplink:link,
+    exact:link?1:0,
+    highlights:$(`e${i}Hl`).value.trim(),
+    verification:$(`e${i}Vf`).value.trim(),
+    gap:$(`e${i}Gap`).value.trim()
+  };
+  try{
+    const d=await post({pin,action:'update',parcel});
+    if(!d.ok)return toast(d.error||'Save failed');
+    Object.assign(ROWS[i],parcel);
+    openRows[i]=false;
+    toast(p.id+' updated — live on the site.');
+    render();
+  }catch(e){toast('Save failed — check connection.');}
+}
+async function removeParcel(i){
+  const pin=requirePin();if(!pin)return;
+  const p=ROWS[i];
+  if(!confirm(`Delete ${p.name} (${p.id})? This removes it from the sheet and the live site — it can't be undone from here.`))return;
+  try{
+    const d=await post({pin,action:'delete',parcel:{id:p.id}});
+    if(!d.ok)return toast(d.error||'Delete failed');
+    toast(p.id+' deleted.');
+    refresh();
+  }catch(e){toast('Delete failed — check connection.');}
+}
+function toggleAdd(){const b=$('addbox');b.style.display=b.style.display==='none'?'block':'none';}
+function slug(){
+  const loc=($('aLoc').value||'PLT').replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase()||'PLT';
+  const n=Math.floor(100+Math.random()*900);
+  return loc+'-'+n;
+}
+async function addParcel(){
+  if(!API)return toast('Not connected yet — finish the Google setup first.');
+  const pin=$('pin').value.trim();
+  if(!pin)return toast('Enter the team PIN first.');
+  const name=$('aName').value.trim(),loc=$('aLoc').value.trim(),area=$('aArea').value.trim(),price=$('aPrice').value.trim();
+  if(!name||!loc||!area||!price)return toast('Name, locality, area and price are needed.');
+  const id=($('aId').value.trim()||slug()).toUpperCase();
+  const link=$('aLink').value.trim();
+  const parcel={id,name,type:$('aType').value,region:$('aReg').value,locality:loc,area,price,
+    unit:$('aUnit').value.trim(),rank:parseFloat($('aRank').value)||0,status:'av',
+    lat:19.99,lng:73.78,exact:link?1:0,maplink:link,tour:'',
+    highlights:$('aHl').value.trim(),verification:$('aVf').value.trim()||'Verified before sale.',gap:''};
+  try{
+    const d=await post({pin,action:'add',parcel});
+    if(!d.ok)return toast(d.error||'Add failed');
+    toast(id+' added — live on the site.');
+    ['aName','aId','aLoc','aArea','aPrice','aUnit','aRank','aLink','aHl','aVf'].forEach(x=>$(x).value='');
+    toggleAdd();refresh();
+  }catch(e){toast('Add failed — check connection.');}
+}
+refresh();
+</script>
+</body>
+</html>
