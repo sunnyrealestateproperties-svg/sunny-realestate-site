@@ -266,8 +266,8 @@ function closeOv(id){document.getElementById(id).classList.remove('show');docume
 document.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('ov'))closeOv(e.target.id);});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.ov.show').forEach(o=>closeOv(o.id));});
 /* ---------- maps ---------- */
-const TILES='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-const TILE_OPTS={attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19};
+const TILES='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_OPTS={attribution:'© OpenStreetMap contributors',subdomains:'abc',maxZoom:19};
 function addPins(map,list,layer){
   list.forEach(p=>{
     const m=L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',html:`<div class="pin ${p.ex?'exact':'approx'}"></div>`,iconSize:[15,15],iconAnchor:[8,8]})}).addTo(layer||map);
@@ -279,9 +279,16 @@ function addPins(map,list,layer){
 const INIT={
  home(){
    const soldN=P.filter(p=>p.st==='sold').length;
+   const listedN=P.length-soldN;
    const listedEl=document.getElementById('credListed');
-   if(listedEl)listedEl.textContent=P.length-soldN;
+   if(listedEl)listedEl.textContent=listedN;
    if(soldN){const w=document.getElementById('credClosedWrap');if(w){w.style.display='';document.getElementById('credClosed').textContent=soldN;}}
+   const browseBtn=document.getElementById('heroBrowseBtn');
+   if(browseBtn)browseBtn.textContent=`Browse ${listedN} parcels`;
+   const mapLabel=document.getElementById('heroMapLabel');
+   if(mapLabel)mapLabel.innerHTML=`<b>●</b> ${listedN} parcels · live map`;
+   const allLink=document.getElementById('allParcelsLink');
+   if(allLink)allLink.textContent=`All ${listedN} parcels →`;
    const curated=['IGT-VAV','SRN-285','BZE-213'];
    let feat=curated.map(id=>P.find(x=>x.id===id)).filter(p=>p&&p.st!=='sold');
    P.forEach(p=>{if(feat.length<3&&p.st!=='sold'&&feat.indexOf(p)<0)feat.push(p);});
@@ -355,6 +362,8 @@ const INIT={
  },
  consult(){},
  about(){
+   const statParcels=document.getElementById('statParcels');
+   if(statParcels)statParcels.dataset.count=P.filter(p=>p.st!=='sold').length;
    const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
    const nums=document.querySelectorAll('[data-count]');
    const run=el=>{
